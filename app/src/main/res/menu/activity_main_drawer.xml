@@ -11,7 +11,7 @@
         <item
             android:id="@+id/nav_payment_settings"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Time Settings" />
+            android:title="Salary Settings" />
     </group>
 
     <item android:title="Communicate">

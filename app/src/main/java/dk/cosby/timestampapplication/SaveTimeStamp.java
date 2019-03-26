@@ -1,43 +1,55 @@
 package dk.cosby.timestampapplication;
 
-
-import android.app.Application;
-import android.content.Context;
-import android.text.format.Time;
-import android.util.Log;
-import android.widget.Toast;
-
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 public class SaveTimeStamp  {
 
-    private String timeNow = "";
-    private Date currentDayInfo;
+    private String time = "";
+    private String date = "";
+    private String timeAndDate = "";
+    private Date currentDayInfo = null;
 
+    private SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm:ss");
+    private SimpleDateFormat sdfDate = new SimpleDateFormat("dd MMM yyyy");
+    private SimpleDateFormat sdfTimeAndDate = new SimpleDateFormat("HH:mm:ss dd MMM yyyy");
+
+
+    //no arg constructor creating
     public SaveTimeStamp(){
-
-    }
-
-    public String saveTimeNow(){
-
         currentDayInfo = Calendar.getInstance().getTime();
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
-        timeNow = simpleDateFormat.format(currentDayInfo);
-
-        return currentDayInfo.toString();
+        date = sdfDate.format(currentDayInfo);
+        time = sdfTime.format(currentDayInfo);
+        timeAndDate = sdfTimeAndDate.format(currentDayInfo);
     }
 
-    public String getTimeNow() {
-        return timeNow;
+    public String secondsToString(int seconds) {
+
+        int hours = seconds/60/60;
+        int minutes = seconds/60;
+        seconds = seconds%60;
+
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
-    public void setTimeNow(String timeNow) {
-        this.timeNow = timeNow;
+
+    //////////////////////////////// GETTERS AND SETTERS //////////////////////////////////////////
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 
     public Date getCurrentDayInfo() {

@@ -15,7 +15,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.DateFormat;
+import java.text.Format;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -27,6 +28,12 @@ public class MainActivity extends AppCompatActivity
 
     private TextView tvPunchedInText;
     private TextView tvPunchedOutText;
+    private TextView tvTimeWorkedText;
+    private TextView tvTimeWorkedResult;
+
+    private boolean workInProgress = false;
+    private String workStartTimeString = "";
+    private String workEndTimeString = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +50,10 @@ public class MainActivity extends AppCompatActivity
         tvPunchedInText = (TextView) findViewById(R.id.tv_punched_in_text);
         tvPunchedOutText = (TextView) findViewById(R.id.tv_punched_out_text);
 
+        tvTimeWorkedText = (TextView) findViewById(R.id.tv_time_worked_text);
+        tvTimeWorkedResult = (TextView) findViewById(R.id.tv_time_worked_result);
+
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -57,14 +68,50 @@ public class MainActivity extends AppCompatActivity
 
     public void onBigBlueButtonClick(View view){
 
-        SaveTimeStamp saveTimeStamp = new SaveTimeStamp();
 
-        String time = saveTimeStamp.saveTimeNow();
 
-        tvPunchedInText.setVisibility(View.VISIBLE);
-        tvPunchedInTime.setText(saveTimeStamp.getTimeNow());
+        if(!workInProgress) {
+            SaveTimeStamp saveTimeStamp = new SaveTimeStamp();
+            tvPunchedInText.setVisibility(View.INVISIBLE);
+            tvPunchedOutText.setVisibility(View.INVISIBLE);
+            tvTimeWorkedText.setVisibility(View.INVISIBLE);
 
-        Toast.makeText(getApplicationContext(), "Time was set to: " + time, Toast.LENGTH_LONG).show();
+            tvPunchedInTime.setText("");
+            tvPunchedOutTime.setText("");
+            tvTimeWorkedResult.setText("");
+
+
+            workStartTimeString = saveTimeStamp.getTime();
+
+            tvPunchedInText.setVisibility(View.VISIBLE);
+            tvPunchedInTime.setText(workStartTimeString);
+
+            //Toast.makeText(getApplicationContext(), "Time was set to: " + workStartTimeString, Toast.LENGTH_LONG).show();
+
+            workInProgress = true;
+        } else {
+            SaveTimeStamp saveTimeStamp = new SaveTimeStamp();
+
+            workEndTimeString = saveTimeStamp.getTime();
+
+            tvPunchedOutText.setVisibility(View.VISIBLE);
+            tvPunchedOutTime.setText(workEndTimeString);
+
+            int startTime = Integer.valueOf(workStartTimeString.replace(":",""));
+            int endTime =   Integer.valueOf(workEndTimeString.replace(":",""));
+
+            int result = endTime-startTime;
+
+            String resultString = saveTimeStamp.secondsToString(result);
+
+
+            tvTimeWorkedText.setVisibility(View.VISIBLE);
+            tvTimeWorkedResult.setText(resultString);
+
+            //Toast.makeText(getApplicationContext(), "Time was set to: " + workEndTimeString, Toast.LENGTH_LONG).show();
+
+            workInProgress = false;
+        }
 
     }
 
