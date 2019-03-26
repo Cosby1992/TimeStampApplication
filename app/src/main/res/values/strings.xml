@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Pay Check</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Menu</string>
+    <string name="nav_header_subtitle">Choose an item</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+
+    <string name="current_time_string">Current time</string>
+</resources>
