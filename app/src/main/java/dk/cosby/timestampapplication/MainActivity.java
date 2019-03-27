@@ -72,9 +72,6 @@ public class MainActivity extends AppCompatActivity
 
         if(!workInProgress) {
             SaveTimeStamp saveTimeStamp = new SaveTimeStamp();
-            tvPunchedInText.setVisibility(View.INVISIBLE);
-            tvPunchedOutText.setVisibility(View.INVISIBLE);
-            tvTimeWorkedText.setVisibility(View.INVISIBLE);
 
             tvPunchedInTime.setText("");
             tvPunchedOutTime.setText("");
@@ -83,7 +80,6 @@ public class MainActivity extends AppCompatActivity
 
             workStartTimeString = saveTimeStamp.getTime();
 
-            tvPunchedInText.setVisibility(View.VISIBLE);
             tvPunchedInTime.setText(workStartTimeString);
 
             //Toast.makeText(getApplicationContext(), "Time was set to: " + workStartTimeString, Toast.LENGTH_LONG).show();
@@ -94,7 +90,6 @@ public class MainActivity extends AppCompatActivity
 
             workEndTimeString = saveTimeStamp.getTime();
 
-            tvPunchedOutText.setVisibility(View.VISIBLE);
             tvPunchedOutTime.setText(workEndTimeString);
 
             int startTime = Integer.valueOf(workStartTimeString.replace(":",""));
@@ -104,8 +99,6 @@ public class MainActivity extends AppCompatActivity
 
             String resultString = saveTimeStamp.secondsToString(result);
 
-
-            tvTimeWorkedText.setVisibility(View.VISIBLE);
             tvTimeWorkedResult.setText(resultString);
 
             //Toast.makeText(getApplicationContext(), "Time was set to: " + workEndTimeString, Toast.LENGTH_LONG).show();
