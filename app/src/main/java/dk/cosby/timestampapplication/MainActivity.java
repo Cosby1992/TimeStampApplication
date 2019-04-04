@@ -2,21 +2,21 @@ package dk.cosby.timestampapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.text.Format;
-import java.util.Calendar;
+import com.google.android.material.navigation.NavigationView;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.room.Database;
+import androidx.room.Room;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -31,9 +31,18 @@ public class MainActivity extends AppCompatActivity
     private TextView tvTimeWorkedText;
     private TextView tvTimeWorkedResult;
 
+    private TextClock tcTextClockMain;
+
     private boolean workInProgress = false;
-    private String workStartTimeString = "";
-    private String workEndTimeString = "";
+
+    private TimeUtilities timeUtil;
+    private Shift shift;
+
+    private long timeStart;
+    private long timeEnd;
+
+
+    private AppDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,18 +50,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        btnBigBlueButton = (Button) findViewById(R.id.btn_big_blue_button);
-
-        tvPunchedInTime = (TextView) findViewById(R.id.tv_punched_in_time);
-        tvPunchedOutTime = (TextView) findViewById(R.id.tv_punched_out_time);
-
-        tvPunchedInText = (TextView) findViewById(R.id.tv_punched_in_text);
-        tvPunchedOutText = (TextView) findViewById(R.id.tv_punched_out_text);
-
-        tvTimeWorkedText = (TextView) findViewById(R.id.tv_time_worked_text);
-        tvTimeWorkedResult = (TextView) findViewById(R.id.tv_time_worked_result);
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -64,49 +61,65 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
+        btnBigBlueButton = (Button) findViewById(R.id.btn_big_blue_button);
+
+        tcTextClockMain = (TextClock) findViewById(R.id.tc_textclock_1);
+
+        tvPunchedInTime = (TextView) findViewById(R.id.tv_punched_in_time);
+        tvPunchedOutTime = (TextView) findViewById(R.id.tv_punched_out_time);
+
+        tvPunchedInText = (TextView) findViewById(R.id.tv_punched_in_text);
+        tvPunchedOutText = (TextView) findViewById(R.id.tv_punched_out_text);
+
+        tvTimeWorkedText = (TextView) findViewById(R.id.tv_time_worked_text);
+        tvTimeWorkedResult = (TextView) findViewById(R.id.tv_time_worked_result);
+
+        timeUtil = new TimeUtilities();
+
+        tcTextClockMain.setFormat12Hour("HH:mm:ss");
+
+        db = Room.inMemoryDatabaseBuilder(getApplicationContext(), AppDatabase.class).build();
     }
 
-    public void onBigBlueButtonClick(View view){
+    public void onBigBlueButtonClick(View view) {
 
-
-
-        if(!workInProgress) {
-            SaveTimeStamp saveTimeStamp = new SaveTimeStamp();
+        if (!workInProgress) {
+            shift = new Shift();
 
             tvPunchedInTime.setText("");
             tvPunchedOutTime.setText("");
             tvTimeWorkedResult.setText("");
 
+            timeStart = System.currentTimeMillis();
+            shift.setTimeStartShift(timeUtil.getTimeFromMillis(timeStart));
+            shift.setDateStartShift(timeUtil.getDateFromMillis(timeStart));
 
-            workStartTimeString = saveTimeStamp.getTime();
-
-            tvPunchedInTime.setText(workStartTimeString);
-
-            //Toast.makeText(getApplicationContext(), "Time was set to: " + workStartTimeString, Toast.LENGTH_LONG).show();
+            String textOut = shift.getTimeStartShift();
 
             workInProgress = true;
+
+            tvPunchedInTime.setText(textOut);
+
+
         } else {
-            SaveTimeStamp saveTimeStamp = new SaveTimeStamp();
 
-            workEndTimeString = saveTimeStamp.getTime();
+            timeEnd = System.currentTimeMillis();
+            shift.setTimeEndShift(timeUtil.getTimeFromMillis(timeEnd));
+            shift.setDateEndShift(timeUtil.getDateFromMillis(timeEnd));
+            shift.setShiftLength(timeUtil.timeBetweenMillis(timeStart, timeEnd));
 
-            tvPunchedOutTime.setText(workEndTimeString);
+            String textOut = shift.getTimeEndShift();
 
-            int startTime = Integer.valueOf(workStartTimeString.replace(":",""));
-            int endTime =   Integer.valueOf(workEndTimeString.replace(":",""));
-
-            int result = endTime-startTime;
-
-            String resultString = saveTimeStamp.secondsToString(result);
-
-            tvTimeWorkedResult.setText(resultString);
-
-            //Toast.makeText(getApplicationContext(), "Time was set to: " + workEndTimeString, Toast.LENGTH_LONG).show();
+            tvPunchedOutTime.setText(textOut);
+            tvTimeWorkedResult.setText(shift.getShiftLength());
 
             workInProgress = false;
+
+
         }
 
     }
+
 
     @Override
     public void onBackPressed() {
@@ -117,7 +130,6 @@ public class MainActivity extends AppCompatActivity
             super.onBackPressed();
         }
     }
-
 
 
     @Override
@@ -148,7 +160,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_time_settings){
+        if (id == R.id.nav_time_settings) {
 
             //Starting the TimeSetting Activity
             Intent timeSettingActivityIntend = new Intent(getApplicationContext(), TimeSettingsActivity.class);
@@ -156,11 +168,11 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_share) {
 
-            Toast.makeText(getApplicationContext(), "This menu item has not been developed", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "This menu item has not been developed", Toast.LENGTH_SHORT).show();
 
         } else if (id == R.id.nav_send) {
 
-            Toast.makeText(getApplicationContext(), "This menu item has not been developed", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "This menu item has not been developed", Toast.LENGTH_SHORT).show();
 
         }
 
@@ -168,4 +180,5 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 }
