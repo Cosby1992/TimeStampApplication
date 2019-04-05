@@ -100,6 +100,10 @@ public class MainActivity extends AppCompatActivity
 
             tvPunchedInTime.setText(textOut);
 
+            ShiftAsyncTask shiftAsyncTask = new ShiftAsyncTask();
+
+            shiftAsyncTask.execute();
+
 
         } else {
 
